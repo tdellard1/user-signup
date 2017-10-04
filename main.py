@@ -9,7 +9,13 @@ app.config['DEBUG'] = True
 def usersignup():
     username = request.args.get('user')
     email = request.args.get('email')
-    return render_template("user_sign_up.html", title='User Sign Up', username=username, email=email)
+    error = request.args.get('error')
+    username_error = request.args.get('username_error')
+    password_error = request.args.get('password_error')
+    vpassword_error = request.args.get('vpassword_error')
+    email_error = request.args.get('email_error')
+    
+    return render_template("user_sign_up.html", title='User Sign Up', username=username, email=email,username_error=username_error, password_error=password_error, vpassword_error=vpassword_error, email_error=email_error)
 
 def is_valid(text):
     error = ''
@@ -25,11 +31,11 @@ def is_valid(text):
         error = 'is not correct length.'
         return False
     
-def is_empty(text):
+def not_empty(text):
     if text == '':
-        return True 
-    else:
         return False
+    else:
+        return True
 
 def password_match(text, text2):
     error = ''
@@ -72,38 +78,42 @@ def user_validate():
     vpassword = request.form['vpassword']
     email = request.form['email']
     proceed = False
-    error = ''
+    username_error = ''
+    password_error = ''
+    vpassword_error = ''
+    email_error = ''
 
-    forms = (username, password, vpassword)
+    if not_empty(username):
+        if not_empty(password):
+            if not_empty(vpassword):
+                if is_valid(username):
+                    if is_valid(password):
+                        if password_match(password, vpassword):
+                            if is_email(email):
+                                return redirect('/user-confirmed?user={0}'.format(username))
+                            else:
+                                email_error = 'Not a valid email'
+                                return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
 
-    if is_empty(username) or is_empty(password) or is_empty(vpassword):
-        proceed = False
-    else:
-        if is_valid(username) and is_valid(password):
-            if password_match(password, vpassword):
-                if is_email(email):
-                    proceed = True
+                        else:
+                            password_error = 'Passwords do not match.'
+                            return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
+                    else:
+                        password_error = 'Password not valid'
+                        return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
                 else:
-                    proceed = False
+                    username_error = 'Username not valid.'
+                    return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
             else:
-                proceed = False
-        else: 
-            proceed = False
-
-
-
-    if proceed == False:
-        return redirect('/user-signup?user={0}&email={1}&error={2}'.format(username, email, error))
+                vpassword_error = 'Password empty'
+                return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
+        else:
+            password_error = 'Password empty'
+            return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
     else:
-        return redirect('/user-confirmed?user={0}'.format(username))
+        username_error = 'Username empty.'
+        return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
         
-        
-@app.route('/re-user-signup')
-def reusersignup():
-    username = request.args.get('user')
-    email = request.args.get('email')
-    return render_template("user_sign_up.html", title='User Sign Up', username=username, email=email)
-
 @app.route('/user-confirmed')
 def user_confirmed():
     username = request.args.get('user') 
