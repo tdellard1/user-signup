@@ -1,21 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
+
 <form action='/user-validate' method='post'>
     <label>Username:
-        <input type='text' name='username' />
+        <input type='text' name='username' value='{{username}}'/>
     </label>
+    <p></p>
     <br > 
     <label>Password:
-        <input type='password' name='password' />
+        <input type='password' name='password'/>
     </label>
+    <p></p>
     <br >
     <label>Verify Password:
-        <input type='password' name='vpassword' />
+        <input type='password' name='vpassword'/>
     </label>
+    <p></p>
     <br >
-    <label>Email:
-        <input type='text' name='email' />
+    <label>Email (optional):
+        <input type='text' name='email' value='{{email}}'/>
     </label>
+    <label>{{error}}</label>
     <br >
     <input type='Submit' />
                             
