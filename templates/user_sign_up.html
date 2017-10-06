@@ -4,23 +4,23 @@
 <form action='/user-validate' method='post'>
     <label>Username:
         <input type='text' name='username' value='{{username}}'/>
-        <p>{{username_error}}</p>
+        <span>{{username_error}}</span>
     </label>
     
     <br > 
     <label>Password:
         <input type='password' name='password'/>
-        <p>{{password_error}}</p>
+        <span>{{password_error}}</span>
     </label>
     <br >
     <label>Verify Password:
         <input type='password' name='vpassword'/>
-        <p>{{vpassword_error}}</p>
+        <span>{{vpassword_error}}</span>
     </label>
     <br >
     <label>Email (optional):
         <input type='text' name='email' value='{{email}}'/>
-        <p>{{email_error}}</p>
+        <span>{{email_error}}</span>
     </label>
     <br >
     <input type='Submit' />

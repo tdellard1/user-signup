@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__)
@@ -14,61 +13,52 @@ def usersignup():
     password_error = request.args.get('password_error')
     vpassword_error = request.args.get('vpassword_error')
     email_error = request.args.get('email_error')
+
     
     return render_template("user_sign_up.html", title='User Sign Up', username=username, email=email,username_error=username_error, password_error=password_error, vpassword_error=vpassword_error, email_error=email_error)
 
 def is_valid(text):
-    error = ''
     if len(text) >= 3 and len(text) <= 20:
         for char in text:
             if char == "":
-                error = 'should contain no space.'
-                break
-                return False
+                return  "Field should't contain no space."
             else:
-                return True
+                return ''
     else:
-        error = 'is not correct length.'
-        return False
+        return "Field isn't correct length."
     
 def not_empty(text):
     if text == '':
-        return False
+        return 'Field is empty'
     else:
-        return True
+        return ''
 
 def password_match(text, text2):
-    error = ''
+    
     if text == text2:
-        return True
+        return ''
     else:
-        error = 'Passwords do not match.'
-        return False
+        return 'Fields do not match.'
 
 def is_email(text):
     if text != '':
-        error = ''
-        if is_valid(text):
-            email = ''
-            for char in text:
-                if char == '@':
-                    email += '@'
-                else:
-                    pass
-                if char == '.':
-                    email += '.'
-                else:
-                    pass
-            if email == '@.':
-                return True
+        email = ''
+        for char in text:
+            if char == '@':
+                email += '@'
             else:
-                error = ' is not a valid email.'
-                return False
-
+                pass
+            if char == '.':
+                email += '.'
+            else:
+                pass
+        if '@' in email and '.' in email:
+            return ''
         else:
-            return False    
+            return 'Field is not valid'
+            
     else: 
-        return True
+        return ''
 
 
 @app.route('/user-validate', methods=['POST'])
@@ -83,37 +73,21 @@ def user_validate():
     vpassword_error = ''
     email_error = ''
 
-    if not_empty(username):
-        if not_empty(password):
-            if not_empty(vpassword):
-                if is_valid(username):
-                    if is_valid(password):
-                        if password_match(password, vpassword):
-                            if is_email(email):
-                                return redirect('/user-confirmed?user={0}'.format(username))
-                            else:
-                                email_error = 'Not a valid email'
-                                return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
+    username_error = not_empty(username)
+    password_error = password_match(password, vpassword)
+    username_error = is_valid(username)
+    password_error = not_empty(password)
+    password_error = is_valid(password)
+    vpassword_error = not_empty(vpassword)
+    vpassword_error = is_valid(vpassword)
+    email_error = is_valid(email)
+    email_error = is_email(email)
 
-                        else:
-                            password_error = 'Passwords do not match.'
-                            return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
-                    else:
-                        password_error = 'Password not valid'
-                        return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
-                else:
-                    username_error = 'Username not valid.'
-                    return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
-            else:
-                vpassword_error = 'Password empty'
-                return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
-        else:
-            password_error = 'Password empty'
-            return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
+    if not username_error and not password_error and not vpassword_error and not email_error:
+        return redirect('/user-confirmed?user={0}'.format(username))
     else:
-        username_error = 'Username empty.'
         return redirect('/user-signup?user={0}&email={1}&username_error={2}&password_error={3}&vpassword_error={4}&email_error={5}'.format(username, email, username_error, password_error, vpassword_error, email_error))
-        
+              
 @app.route('/user-confirmed')
 def user_confirmed():
     username = request.args.get('user') 
